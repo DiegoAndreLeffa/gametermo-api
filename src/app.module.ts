@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { validate } from './env.validation';
 import { ContentModule } from './modules/content/content.module';
+import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { ContentModule } from './modules/content/content.module';
       inject: [ConfigService],
     }),
     ContentModule,
+    UsersModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

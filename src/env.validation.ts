@@ -19,13 +19,17 @@ class EnvironmentVariables {
 
   @IsString()
   MONGO_URI: string;
+
+  @IsString()
+  JWT_SECRET: string;
 }
 
 export function validate(config: Record<string, unknown>) {
   const configWithDefaults = {
     NODE_ENV: config.NODE_ENV || 'development',
     PORT: config.PORT || 3000,
-    MONGO_URI: config.MONGO_URI,
+    MONGO_URI: config.MONGO_URI || 'mongodb://localhost:27017/gametermo',
+    JWT_SECRET: config.JWT_SECRET || 'your_jwt_secret_key_change_in_production',
   };
 
   const validatedConfig = plainToInstance(EnvironmentVariables, configWithDefaults, {
