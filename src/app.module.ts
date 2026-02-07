@@ -6,6 +6,7 @@ import { ContentModule } from './modules/content/content.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { GameCoreModule } from './modules/game-core/game-core.module';
+import { GameplayModule } from './modules/gameplay/gameplay.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { GameCoreModule } from './modules/game-core/game-core.module';
     UsersModule,
     AuthModule,
     GameCoreModule,
+    GameplayModule,
   ],
   controllers: [],
   providers: [],
