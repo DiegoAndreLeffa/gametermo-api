@@ -5,6 +5,7 @@ import { validate } from './env.validation';
 import { ContentModule } from './modules/content/content.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { GameCoreModule } from './modules/game-core/game-core.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AuthModule } from './modules/auth/auth.module';
     ContentModule,
     UsersModule,
     AuthModule,
+    GameCoreModule,
   ],
   controllers: [],
   providers: [],
