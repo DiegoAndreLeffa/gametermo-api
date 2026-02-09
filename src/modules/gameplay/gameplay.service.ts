@@ -1,7 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -10,6 +16,7 @@ import { DailyChallenge, DailyChallengeDocument } from './schemas/daily-challeng
 import { Theme, ThemeDocument } from '../content/schemas/theme.schema';
 import { Entity, EntityDocument } from '../content/schemas/entity.schema';
 import { GameCoreService } from '../game-core/game-core.service';
+import { Room, RoomDocument } from '../rooms/schemas/room.schema';
 
 @Injectable()
 export class GameplayService {
@@ -22,6 +29,7 @@ export class GameplayService {
     private themeModel: Model<ThemeDocument>,
     @InjectModel(Entity.name)
     private entityModel: Model<EntityDocument>,
+    @InjectModel(Room.name) private roomModel: Model<RoomDocument>,
     private gameCoreService: GameCoreService,
   ) {}
 
@@ -161,5 +169,69 @@ export class GameplayService {
       attempts: session.attempts,
       history: history.reverse(),
     };
+  }
+
+  async startRoomSession(userId: string, roomCode: string) {
+    const today = this.getTodayDate();
+
+    const room = await this.roomModel.findOne({ code: roomCode }).exec();
+    if (!room) throw new NotFoundException('Room not found');
+
+    const isMember = room.members.some((m: any) => m.toString() === userId);
+    if (!isMember) throw new UnauthorizedException('User is not a member of this room');
+
+    const theme = await this.themeModel.findById(room.theme).exec();
+    if (!theme) throw new NotFoundException('Theme not found for this room');
+
+    if (room.currentDailyDate !== today || !room.currentDailyEntity) {
+      const count = await this.entityModel
+        .countDocuments({ theme: room.theme } as Record<string, any>)
+        .exec();
+
+      if (count === 0) throw new BadRequestException('Theme has no entities');
+
+      const random = Math.floor(Math.random() * count);
+      const randomEntity = await this.entityModel
+        .findOne({ theme: room.theme } as Record<string, any>)
+        .skip(random)
+        .exec();
+
+      if (!randomEntity) throw new BadRequestException('Error picking entity');
+
+      room.currentDailyEntity = randomEntity._id;
+      room.currentDailyDate = today;
+      await room.save();
+    }
+
+    const targetEntity = await this.entityModel.findById(room.currentDailyEntity).exec();
+
+    if (!targetEntity) throw new NotFoundException('Room entity not found');
+
+    const existingSession = await this.sessionModel
+      .findOne({
+        user: userId,
+        mode: 'ROOM_DAILY',
+        dailyDate: today,
+        roomId: room._id,
+      } as Record<string, any>)
+      .populate('guesses')
+      .exec();
+
+    if (existingSession) {
+      return this.mapSessionResponse(existingSession, theme, targetEntity);
+    }
+
+    const session = await this.sessionModel.create({
+      user: userId as any,
+      theme: room.theme as any,
+      mode: 'ROOM_DAILY',
+      dailyDate: today,
+      targetEntity: targetEntity._id as any,
+      roomId: room._id as any,
+      guesses: [],
+      status: 'PLAYING',
+    });
+
+    return this.mapSessionResponse(session, theme, targetEntity);
   }
 }

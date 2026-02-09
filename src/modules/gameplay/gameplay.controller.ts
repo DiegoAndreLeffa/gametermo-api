@@ -18,4 +18,9 @@ export class GameplayController {
   guess(@Request() req, @Param('sessionId') sessionId: string, @Body('guess') guessName: string) {
     return this.gameplayService.makeGuess(req.user.userId, sessionId, guessName);
   }
+
+  @Post('room/:code/start')
+  startRoom(@Request() req, @Param('code') code: string) {
+    return this.gameplayService.startRoomSession(req.user.userId, code);
+  }
 }
