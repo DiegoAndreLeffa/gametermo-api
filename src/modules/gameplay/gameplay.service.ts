@@ -17,6 +17,7 @@ import { Theme, ThemeDocument } from '../content/schemas/theme.schema';
 import { Entity, EntityDocument } from '../content/schemas/entity.schema';
 import { GameCoreService } from '../game-core/game-core.service';
 import { Room, RoomDocument } from '../rooms/schemas/room.schema';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class GameplayService {
@@ -31,6 +32,7 @@ export class GameplayService {
     private entityModel: Model<EntityDocument>,
     @InjectModel(Room.name) private roomModel: Model<RoomDocument>,
     private gameCoreService: GameCoreService,
+    private usersService: UsersService,
   ) {}
 
   private getTodayDate(): string {
@@ -143,6 +145,12 @@ export class GameplayService {
 
     if (result.correct) {
       session.status = 'WON';
+
+      const pointsEarned = this.calculatePoints(session.attempts);
+
+      if (session.mode !== 'INFINITE') {
+        await this.usersService.addPoints(userId, pointsEarned);
+      }
     }
 
     await session.save();
@@ -233,5 +241,12 @@ export class GameplayService {
     });
 
     return this.mapSessionResponse(session, theme, targetEntity);
+  }
+
+  private calculatePoints(attempts: number): number {
+    const maxPoints = 1000;
+    const penaltyPerGuess = 100;
+    const penalty = (attempts - 1) * penaltyPerGuess;
+    return Math.max(100, maxPoints - penalty);
   }
 }

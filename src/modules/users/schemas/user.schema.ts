@@ -24,3 +24,5 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+// No final do arquivo user.schema.ts
+UserSchema.index({ points: -1 });

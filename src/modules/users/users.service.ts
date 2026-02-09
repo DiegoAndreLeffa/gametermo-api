@@ -22,4 +22,15 @@ export class UsersService {
   async findById(id: string): Promise<User | undefined> {
     return this.userModel.findById(id).exec() as Promise<User | undefined>;
   }
+
+  async addPoints(userId: string, points: number) {
+    return this.userModel.findByIdAndUpdate(userId, { $inc: { points: points } }, { new: true });
+  }
+
+  async getTopPlayers(limit: number = 100) {
+    return this.userModel
+      .find({}, { nickname: 1, avatar: 1, points: 1 })
+      .sort({ points: -1 })
+      .limit(limit);
+  }
 }
