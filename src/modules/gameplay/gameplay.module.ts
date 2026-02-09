@@ -10,6 +10,7 @@ import { GameCoreModule } from '../game-core/game-core.module';
 import { Theme, ThemeSchema } from '../content/schemas/theme.schema';
 import { Entity, EntitySchema } from '../content/schemas/entity.schema';
 import { Room, RoomSchema } from '../rooms/schemas/room.schema';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { Room, RoomSchema } from '../rooms/schemas/room.schema';
     ]),
     ContentModule,
     GameCoreModule,
+    UsersModule,
   ],
   controllers: [GameplayController],
   providers: [GameplayService],

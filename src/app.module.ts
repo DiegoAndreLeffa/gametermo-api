@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { GameCoreModule } from './modules/game-core/game-core.module';
 import { GameplayModule } from './modules/gameplay/gameplay.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
+import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { RoomsModule } from './modules/rooms/rooms.module';
     GameCoreModule,
     GameplayModule,
     RoomsModule,
+    LeaderboardModule,
   ],
   controllers: [],
   providers: [],
