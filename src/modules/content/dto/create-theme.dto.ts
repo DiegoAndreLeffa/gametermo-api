@@ -1,4 +1,4 @@
-// src/modules/content/dto/create-theme.dto.ts
+import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsEnum, IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateThemeDto {
@@ -10,6 +10,7 @@ export class CreateThemeDto {
   @IsNotEmpty()
   name: string;
 
+  @ApiProperty({ enum: ['CLASSIC', 'ATTRIBUTES'], description: 'Tipo de mecânica do jogo' })
   @IsEnum(['CLASSIC', 'ATTRIBUTES'])
   type: 'CLASSIC' | 'ATTRIBUTES';
 
