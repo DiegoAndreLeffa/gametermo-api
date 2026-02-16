@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Body, Controller, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 import { RoomsService } from './rooms.service';
@@ -23,6 +23,16 @@ export class RoomsController {
   @ApiOperation({ summary: 'Entra em uma sala existente com um código' })
   join(@Request() req, @Body() body: { code: string }) {
     return this.roomsService.joinRoom(req.user.userId, body.code);
+  }
+
+  @Get('mine')
+  getUserRooms(@Request() req) {
+    return this.roomsService.getUserRooms(req.user.userId);
+  }
+
+  @Delete(':id')
+  deleteRoom(@Request() req, @Param('id') roomId: string) {
+    return this.roomsService.deleteRoom(req.user.userId, roomId);
   }
 
   @Get(':id')
