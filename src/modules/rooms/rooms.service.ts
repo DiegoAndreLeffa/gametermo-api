@@ -1,8 +1,15 @@
+/* eslint-disable @typescript-eslint/no-base-to-string */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable, NotFoundException } from '@nestjs/common';
+
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Room } from './schemas/room.schema';
@@ -20,23 +27,45 @@ export class RoomsService {
   }
 
   async createRoom(userId: string, themeSlug: string, name: string) {
-    const theme = await this.themeModel.findOne({ slug: themeSlug }).exec();
+    const existingRoom = await this.roomModel.findOne({
+      owner: new Types.ObjectId(userId) as any,
+    });
+
+    if (existingRoom) {
+      throw new BadRequestException(
+        `Você já possui uma sala ativa (${existingRoom.code}). Desfaça-a antes de criar outra.`,
+      );
+    }
+
+    const theme = await this.themeModel.findOne({ slug: themeSlug });
     if (!theme) throw new NotFoundException('Theme not found');
 
     let code = this.generateCode();
-    while (await this.roomModel.findOne({ code }).exec()) {
+    while (await this.roomModel.findOne({ code })) {
       code = this.generateCode();
     }
 
     const room = await this.roomModel.create({
       code,
       name,
-      owner: userId,
-      members: [userId],
-      theme: theme._id,
-    } as any);
+      owner: new Types.ObjectId(userId) as any,
+      members: [new Types.ObjectId(userId) as any],
+      theme: theme._id as any,
+    });
 
     return room;
+  }
+
+  async deleteRoom(userId: string, roomId: string) {
+    const room = await this.roomModel.findById(roomId);
+    if (!room) throw new NotFoundException('Room not found');
+
+    if (room.owner.toString() !== userId) {
+      throw new ForbiddenException('Apenas o dono pode desfazer a sala');
+    }
+
+    await this.roomModel.findByIdAndDelete(roomId);
+    return { message: 'Room deleted successfully' };
   }
 
   async joinRoom(userId: string, code: string) {
@@ -52,6 +81,14 @@ export class RoomsService {
     }
 
     return room;
+  }
+
+  async getUserRooms(userId: string) {
+    return this.roomModel
+      .find({ members: userId } as any)
+      .select('name code owner members theme')
+      .populate('owner', 'nickname')
+      .sort({ createdAt: -1 });
   }
 
   async getRoomDetails(roomId: string) {

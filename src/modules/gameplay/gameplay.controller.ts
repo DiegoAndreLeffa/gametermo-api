@@ -29,4 +29,19 @@ export class GameplayController {
   startRoom(@Request() req, @Param('code') code: string) {
     return this.gameplayService.startRoomSession(req.user.userId, code);
   }
+
+  @Post('infinite/:themeSlug/start')
+  startInfinite(@Request() req, @Param('themeSlug') themeSlug: string) {
+    return this.gameplayService.startInfiniteSession(req.user.userId, themeSlug);
+  }
+
+  @Post('time-attack/:themeSlug/start')
+  startTimeAttack(@Request() req, @Param('themeSlug') themeSlug: string) {
+    return this.gameplayService.startTimeAttack(req.user.userId, themeSlug);
+  }
+
+  @Post(':sessionId/hint')
+  useHint(@Request() req, @Param('sessionId') sessionId: string) {
+    return this.gameplayService.useHint(req.user.userId, sessionId);
+  }
 }

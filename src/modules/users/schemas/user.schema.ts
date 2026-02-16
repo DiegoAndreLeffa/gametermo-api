@@ -16,13 +16,9 @@ export class User {
   @Prop({ required: true, select: false })
   password: string;
 
-  @Prop({ default: 'default_avatar.png' })
-  avatar: string;
-
   @Prop({ default: 0 })
   points: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-// No final do arquivo user.schema.ts
 UserSchema.index({ points: -1 });

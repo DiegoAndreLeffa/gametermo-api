@@ -15,7 +15,7 @@ export class GameSession {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Theme', required: true })
   theme: Theme;
 
-  @Prop({ enum: ['DAILY', 'INFINITE', 'ROOM_DAILY'], required: true })
+  @Prop({ enum: ['DAILY', 'INFINITE', 'ROOM_DAILY', 'TIME_ATTACK'], required: true })
   mode: string;
 
   @Prop()
@@ -35,6 +35,18 @@ export class GameSession {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Room' })
   roomId?: Room;
+
+  @Prop({ default: false })
+  usedHint: boolean;
+
+  @Prop({ default: 0 })
+  score: number;
+
+  @Prop()
+  expiresAt?: Date; // Data/Hora exata que o jogo acaba (Só para Time Attack)
+
+  @Prop()
+  timeRemaining?: number; // NOVO: Guarda os segundos que sobraram (ex: 85)
 }
 
 export const GameSessionSchema = SchemaFactory.createForClass(GameSession);

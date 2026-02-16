@@ -14,6 +14,11 @@ export class LeaderboardController {
     return this.leaderboardService.getGlobalRanking();
   }
 
+  @Get('time-attack')
+  getTimeAttackRanking() {
+    return this.leaderboardService.getTimeAttackRanking();
+  }
+
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @Get('room/:roomId')
