@@ -32,6 +32,8 @@ async function bootstrap() {
   app.enableCors({
     origin: ['https://gametermo-front.vercel.app'],
     credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
   });
 
   await app.listen(process.env.PORT || 3000);
