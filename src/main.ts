@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cors from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,12 +31,19 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  app.enableCors({
-    origin: ['https://gametermo-front.vercel.app'],
-    credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Authorization',
-  });
+  app.use(
+    cors({
+      origin: [
+        'https://gametermo-front.vercel.app',
+        'http://localhost:3000',
+        'http://localhost:3001',
+      ],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      credentials: true,
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+      optionsSuccessStatus: 200,
+    }),
+  );
 
   await app.listen(process.env.PORT || 3000);
 }
