@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { validate } from './env.validation';
@@ -9,6 +9,7 @@ import { GameCoreModule } from './modules/game-core/game-core.module';
 import { GameplayModule } from './modules/gameplay/gameplay.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
+import { RequestLoggerMiddleware } from './request-logger.middleware';
 
 @Module({
   imports: [
@@ -34,4 +35,8 @@ import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
+}
